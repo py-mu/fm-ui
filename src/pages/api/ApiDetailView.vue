@@ -34,7 +34,6 @@
           <a-tabs>
             <a-tab-pane key="1" tab="Header">
               <a-table :dataSource="dataSource" :columns="columns" class="ant-table-striped" bordered
-                       :pagination="{ position: ['none'] }"
                        size="middle"/>
             </a-tab-pane>
             <a-tab-pane key="2" tab="Query">
@@ -83,15 +82,15 @@ export default {
       dataSource: [
         {
           key: '1',
-          name: '胡彦斌',
-          age: 32,
-          address: '西湖区湖底公园1号',
+          name: 'username',
+          age: 'FierceMan',
+          address: '用户账号',
         },
         {
           key: '2',
-          name: '胡彦祖',
-          age: 42,
-          address: '西湖区湖底公园1号',
+          name: 'password',
+          age: '*********',
+          address: '用户密码',
         },
       ],
 
