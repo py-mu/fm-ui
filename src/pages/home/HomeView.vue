@@ -7,33 +7,33 @@
     <template>
       <a-row class="row-card" :gutter="16">
         <a-col :span="12" class="col-card-left">
-          <a-card title="基本信息" :bordered="false" class="card-content">
+          <a-card :title="$t('base_info')" :bordered="false" class="card-content">
             <!--     基本信息       -->
-            <a-descriptions title="Swagger 信息" size="middle">
-              <a-descriptions-item label="名称">Fierce Man UI</a-descriptions-item>
-              <a-descriptions-item label="Python">
-                <img src="https://img.shields.io/badge/Python-3.7+-blue.svg"/>
+            <a-descriptions :title="$t('swagger_info')" size="middle">
+              <a-descriptions-item :label="$t('name')">Fierce Man UI</a-descriptions-item>
+              <a-descriptions-item label="Swagger">
+                <img src="https://img.shields.io/badge/swagger-2.0-green.svg"/>
               </a-descriptions-item>
-              <a-descriptions-item label="版本">swagger {{ swagger.swagger }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('version')">{{ swagger.swagger }}</a-descriptions-item>
             </a-descriptions>
             <!--      项目信息      -->
-            <a-descriptions title="API 信息" size="middle">
-              <a-descriptions-item label="名称">{{ swagger.info.title }}</a-descriptions-item>
-              <a-descriptions-item label="作者">
+            <a-descriptions :title="$t('api_info')" size="middle">
+              <a-descriptions-item :label="$t('name')">{{ swagger.info.title }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('author')">
                 <a :href="'mailto:' + swagger.info.contact.email">{{ swagger.info.contact.name }}</a>
               </a-descriptions-item>
-              <a-descriptions-item label="版本">{{ swagger.info.version }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('version')">{{ swagger.info.version }}</a-descriptions-item>
               <a-descriptions-item label="Base" :span="2">
                 <a target="_blank"
                    :href="'http://' + swagger.host + swagger.basePath">http://{{ swagger.host + swagger.basePath }}</a>
               </a-descriptions-item>
             </a-descriptions>
             <h1><b>
-              REST规范检查
+              {{ $t('rest_check_info') }}
             </b></h1>
             <a-space direction="vertical" class="show-msg beauty-scroll">
               <a-alert
-                  message="听说你的API很RESTful喔😁。——来自前端的点赞👍"
+                  :message="$t('check_success')"
                   closable
               />
               <a-alert
@@ -81,7 +81,7 @@
           </a-card>
         </a-col>
         <a-col :span="12" class="col-card-right">
-          <a-card title="API视图" :bordered="false" class="card-content">
+          <a-card :title="$t('api_view')" bordered="false" class="card-content">
             <div style="min-height: 400px;">
               <radar-view/>
             </div>

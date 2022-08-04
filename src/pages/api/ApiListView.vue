@@ -7,14 +7,13 @@
           <a-row class="row-card" :gutter="16">
             <a-col :span="5" class="col-card-left">
               <div class="beauty-scroll">
-                <!--                <router-link :to="{path:'/api-list/api-detail'}">凯尼</router-link>-->
-                <api-menus :paths="apiPaths" @menuSelect="onSelect"></api-menus>
+                <api-menus :paths="apiPaths" @menuSelect="onSelect" :defaultSelectedKeys="[aid]"></api-menus>
               </div>
             </a-col>
             <a-col :span="19" class="col-card-left">
               <div class="col-card-right card-content">
                 <a-keep-alive>
-                  <api-detail-view :aid="aid" :key="aid"></api-detail-view>
+                  <api-detail-view :aid="aid" :key="aid" :swagger-dataset="swaggerDataset"></api-detail-view>
                 </a-keep-alive>
               </div>
             </a-col>
@@ -27,8 +26,8 @@
 
 <script>
 import PageView from "@/layouts/PageView";
-import {mapGetters} from "vuex";
-import {parseRouter} from "@/utils/swagger";
+import {mapGetters, mapMutations} from "vuex";
+import {isEmpty, parseRouter, parseSwaggerMap} from "@/utils/swagger";
 import ApiMenus from "@/components/menu/ApiMenus";
 import AKeepAlive from "@/components/cache/AKeepAlive";
 import ApiDetailView from "@/pages/api/ApiDetailView";
@@ -41,26 +40,32 @@ export default {
   extends: PageView,
   components: {ApiMenus, AKeepAlive, ApiDetailView},
   computed: {
-    ...mapGetters('setting', ["swaggerInfo"]),
-    apiPaths: function () {
-      return parseRouter(this.swaggerInfo)
-    }
+    ...mapGetters('setting', ["swaggerInfo", "lastSelectApiUri"]),
   },
-  data(){
+  data() {
     return {
-      aid: '1'
+      aid: null,
+      apiPaths: [],
+      swaggerDataset: {},
     }
   },
   created() {
+    this.apiPaths = parseRouter(this.swaggerInfo);
+    this.swaggerDataset = parseSwaggerMap(this.swaggerInfo)
+    // 如果没有传入任何值，则取第一个
+    if (isEmpty(this.aid) && Object.entries(this.swaggerDataset.uris)) {
+      this.aid = Object.entries(this.swaggerDataset.uris)[0][0]
+    }
   },
   methods: {
+    ...mapMutations('setting', ['setLastSelectApiUri']),
     /**
      * 选择菜单时
      */
     onSelect(obj) {
-      console.log(obj)
       this.aid = obj.key
-    }
+      this.setLastSelectApiUri(obj.key)
+    },
   }
 }
 </script>

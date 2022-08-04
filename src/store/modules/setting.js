@@ -15,6 +15,10 @@ const customTitles = (customTitlesStr && JSON.parse(customTitlesStr)) || []
 export default {
     namespaced: true,
     state: {
+        /**
+         * 最后打开的api
+         */
+        lastSelectApiUri: null,
         isMobile: false,
         animates: ADMIN.animates,
         palettes: ADMIN.palettes,
@@ -31,6 +35,12 @@ export default {
         _swaggerInfo: {}
     },
     getters: {
+        lastSelectApiUri: state =>{
+            if (!state.lastSelectApiUri) {
+                return localStorage.getItem('select-api-uri')
+            }
+            return state.lastSelectApiUri
+        },
         /**
          * 查询配置swagger数据
          * @param state
@@ -140,6 +150,12 @@ export default {
         ,
         setFixedTabs(state, fixedTabs) {
             state.fixedTabs = fixedTabs
+        }
+        ,
+        setLastSelectApiUri(state, key){
+            if (key) {
+                sessionStorage.setItem('select-api-uri', key)
+            }
         }
         ,
         setCustomTitle(state, {path, title}) {

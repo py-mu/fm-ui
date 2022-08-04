@@ -1,7 +1,7 @@
 <template>
   <a-row class="row-card">
     <a-col :span="24">
-      <a-card title="文档描述" :bordered="false" class="card-content">
+      <a-card :title="$t('docs_info')" :bordered="false" class="card-content">
         <mark-render :plaintext="mdHtml"></mark-render>
       </a-card>
     </a-col>

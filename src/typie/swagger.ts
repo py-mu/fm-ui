@@ -1,3 +1,35 @@
+/**
+ * 接口类型
+ */
+export type SwaggerApiType = {
+    title: string,
+    deprecated: boolean,
+    base: string,
+    method: string,
+    description: string,
+    operationId: string,
+    parameters: [
+        {
+            description: string,
+            in: string,
+            name: string,
+            required: boolean,
+            type: string,
+        }
+    ],
+    responses: {
+        200: {
+            description: string,
+            schema: {
+                $ref: string
+            }
+        },
+
+    },
+    summary: string,
+    tags: [string]
+}
+
 export type SwaggerInfoType = {
     /**
      * swagger版本
@@ -63,44 +95,21 @@ export type SwaggerInfoType = {
     },
     paths: {
         '/application': {
-            'get': {
-                description: string,
-                operationId: string,
-                parameters: [
-                    {
-                        description: string,
-                        in: string,
-                        name: string,
-                        required: boolean,
-                        type: string,
-                    }
-                ],
-                responses:{
-                    200: {
-                        description:string,
-                        schema: {
-                            $ref: string
-                        }
-                    },
-
-                },
-                summary: string,
-                tags:[string]
-            },
-            parameters:[]
+            'get': SwaggerApiType,
+            parameters: []
         }
     },
-    produces:[string],
+    produces: [string],
     schemes: [string],
-    security:[{
+    security: [{
         Bearer: []
     }],
-    securityDefinitions:{
-        Bearer:{
-            description:string,
-            type:string,
-            in:string,
-            name:string,
+    securityDefinitions: {
+        Bearer: {
+            description: string,
+            type: string,
+            in: string,
+            name: string,
         }
     }
 }

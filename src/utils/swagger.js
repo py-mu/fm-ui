@@ -29,7 +29,7 @@ export function PrismParse(html) {
  * @param input{any}
  * @return {boolean}
  */
-function isEmpty(input) {
+export function isEmpty(input) {
     return input === undefined || input === null || input === ''
 }
 
@@ -45,6 +45,51 @@ function getUriTag(uri) {
         }
     }
     return uri
+}
+
+/**
+ * 通过swagger 构建一个映射集合，用于搜索及详情显示
+ * @param info
+ */
+export function parseSwaggerMap(info) {
+    const paths = info.paths;
+    let dataset = {
+        // 预保留标签筛选
+        tags: {},
+        uris: {},
+    }
+    let tagMap = {};
+    for (const uri in paths) {
+        const uriData = paths[uri];
+
+        let tag = getUriTag(uri)
+        for (const method in uriData) {
+            if (method === 'parameters') {
+                continue
+            }
+            const methodData = uriData[method]
+            tag = methodData['tags'].length !== 0 ? methodData['tags'][0] : getUriTag(uri)
+
+            if (tagMap[tag] === undefined){
+                tagMap[tag] = getUriTag(uri)
+            }
+            const operationId = tagMap[tag] + '/' + methodData.operationId
+            const title = isEmpty(methodData.summary) ? operationId : methodData.summary
+            let all_tags = (methodData['tags'].indexOf(tag) === -1 ? methodData['tags'] : [tag].concat(methodData['tags']))
+            for (const i in all_tags) {
+                const a_tag = all_tags[i]
+                dataset["tags"][a_tag] = (dataset["tags"][a_tag] || [])
+                if (dataset["tags"][a_tag].indexOf(operationId) === -1) {
+                    dataset["tags"][a_tag].push(operationId)
+                }
+            }
+            dataset.uris[operationId] = methodData
+            dataset.uris[operationId]['title'] = title
+            dataset.uris[operationId]['base'] = uri
+            dataset.uris[operationId]['method'] = method
+        }
+    }
+    return dataset
 }
 
 /**
@@ -73,6 +118,7 @@ export function parseRouter(info) {
                 key: operationId,
                 name: title,
                 method: method,
+                deprecated: methodData.deprecated,
                 meta: {
                     icon: '',
                     title: title
@@ -91,7 +137,7 @@ export function parseRouter(info) {
             children: nemu['router']
         })
     }
-    menus.sort((b, a)=> b.name.localeCompare(a.name, 'zh'))
+    menus.sort((b, a) => b.name.localeCompare(a.name, 'zh'))
 
     return menus
 }
