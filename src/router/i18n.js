@@ -103,11 +103,12 @@ module.exports = {
             header_status: '通用网关接口的响应头字段，用来说明当前HTTP连接的响应状态',
             params_name: '名称',
             params_value: '值',
-            index: '序号',
+            params_index: '序号',
             action: '操作',
             params_description: '描述',
             params_used: '启用',
-            there_are_blank_lines: '存在空行未使用，不用重复添加'
+            there_are_blank_lines: '存在空行未使用，不用重复添加',
+            no_request_body: '无请求内容'
         },
         US: {
             home: {name: 'home'},
@@ -166,11 +167,12 @@ module.exports = {
             header_status: 'The response header field of the generic gateway interface is used to describe the response status of the current HTTP connection',
             params_name: 'Name',
             params_value: 'Value',
-            index: 'Index',
+            params_index: 'Index',
             action: 'Action',
             params_used: 'Used',
             params_description: 'Description',
             there_are_blank_lines: 'There are blank lines in table.',
+            no_request_body: 'no body here.'
 
         },
         HK: {

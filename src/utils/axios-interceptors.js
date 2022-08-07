@@ -38,7 +38,7 @@ const resCommon = {
  * 通用请求拦截
  * @type {{onFulfilled(*, *): *, onRejected(*, *): Promise<never>}}
  */
-const reqCommon = {
+export const reqCommon = {
     /**
      * 发送请求之前做些什么
      * @param config axios config
@@ -69,6 +69,7 @@ const reqCommon = {
 }
 
 export default {
-    request: [reqCommon],
+    // request: [reqCommon],
+    request: [],
     response: [resCommon]
 }

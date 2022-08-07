@@ -1,7 +1,8 @@
 <template>
   <div class="left-box">
 
-    <a-menu mode="inline" class="menu-box beauty-scroll" @select="onSelect" :defaultSelectedKeys="defaultSelectedKeys">
+    <a-menu mode="inline" class="menu-box beauty-scroll"
+            @select="onSelect" :selectedKeys="defaultSelectedKeys">
       <a-sub-menu :key="router.path + i" v-for="(router, i) in paths">
         <template #title>{{ router.name }}</template>
 

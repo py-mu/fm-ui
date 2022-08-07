@@ -15,6 +15,12 @@ export type SwaggerApiType = {
             name: string,
             required: boolean,
             type: string,
+            default: string,
+            schema: string,
+            format: string,
+            enum: string,
+            pattern: string,
+            items: string,
         }
     ],
     responses: {

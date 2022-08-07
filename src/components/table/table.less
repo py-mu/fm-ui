@@ -1,0 +1,52 @@
+.center-element {
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+}
+
+//noinspection CssUnknownProperty
+.text-show {
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  text-align: center;
+  word-wrap: normal;
+  -webkit-box-orient: vertical;
+}
+.add-btn{
+  //margin-bottom: 10px;
+}
+
+.text-input {
+  width: 100%;
+  margin: -5px 0;
+}
+
+.text-color-secondary {
+  color: @text-color-secondary;
+}
+
+/**
+空行提示
+ */
+@keyframes blank-row {
+  0% {
+    color: @btn-danger-bg;
+  }
+  80% {
+    color: @btn-danger-bg;
+  }
+  100% {
+    color: @text-color-secondary;
+  }
+}
+
+.blank-row-tip {
+  animation-name: blank-row;
+  animation-duration: 3s
+}
+
+:global(.ant-table-thead > tr > th) {
+  text-align: center !important;
+}

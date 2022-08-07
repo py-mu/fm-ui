@@ -9,15 +9,11 @@
 export default {
   name: "CheckRedirectView",
   created() {
-    if (this.mustBeLogin){
+    const mustBeLogin =this.$store.state.setting.mustBeLogin
+    if (mustBeLogin){
       this.$router.push('/login')
     }else {
        this.$router.push('/index')
-    }
-  },
-  computed: {
-    mustBeLogin() {
-      return this.$store.state.setting.mustBeLogin
     }
   }
 }

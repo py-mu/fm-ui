@@ -51,6 +51,7 @@ export default {
   },
   created() {
     this.apiPaths = parseRouter(this.swaggerInfo);
+    this.aid = this.lastSelectApiUri
     this.swaggerDataset = parseSwaggerMap(this.swaggerInfo)
     // 如果没有传入任何值，则取第一个
     if (isEmpty(this.aid) && Object.entries(this.swaggerDataset.uris)) {

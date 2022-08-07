@@ -53,8 +53,5 @@ Vue.use(Plugins)
 bootstrap({router, store, i18n, message: Vue.prototype.$message})
 
 new Vue({
-    router,
-    store,
-    i18n,
-    render: h => h(App),
+    router, store, i18n, render: h => h(App),
 }).$mount('#app')

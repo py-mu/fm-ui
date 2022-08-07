@@ -81,7 +81,7 @@
           </a-card>
         </a-col>
         <a-col :span="12" class="col-card-right">
-          <a-card :title="$t('api_view')" bordered="false" class="card-content">
+          <a-card :title="$t('api_view')" :bordered="false" class="card-content">
             <div style="min-height: 400px;">
               <radar-view/>
             </div>

@@ -126,7 +126,7 @@ function checkAuthorization(authType = AUTH_TYPE.BEARER) {
 		default:
 			break
 	}
-	return false
+	return true
 }
 
 /**

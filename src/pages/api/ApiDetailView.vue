@@ -10,6 +10,15 @@
               :sub-title="apiData.data.operationId"
               @back="() => null"
           >
+            <template #extra>
+              <a-space>
+                <a-icon type="user"/>
+                <span>
+                  {{ apiData.env }}
+                  <!--                  {{ requestData }}-->
+                </span>
+              </a-space>
+            </template>
             <template #tags>
               <api-tag :tags="apiData.data.tags" :method="apiData.data.method" :deprecated="apiData.data.deprecated"/>
             </template>
@@ -37,18 +46,70 @@
         </div>
         <div style="min-height: 500px">
           <a-tabs>
+            <!--    请求头        -->
             <a-tab-pane key="1" tab="Header">
-              <request-header></request-header>
+              <request-header-table :request-data="requestData"/>
             </a-tab-pane>
+            <!--    Query表单        -->
             <a-tab-pane key="2" tab="Query">
-              <a-table :dataSource="dataSource" :columns="columns" class="ant-table-striped" bordered
-                       size="middle"/>
+              <query-table :parameters="getApiParameters('query')" :request-data="requestData"></query-table>
             </a-tab-pane>
             <!--    在使用GET请求是body其实没有用的，所以禁用        -->
             <a-tab-pane key="Body" tab="Body" :disabled="apiData.data.method === 'get'">
-              <a-table :dataSource="dataSource" :columns="columns" class="ant-table-striped" bordered
-                       size="middle"/>
+
+              <div class="field-box">
+                <div class="field-box-left">
+                  <a-tooltip
+                      v-if="['multipart/form-data', 'application/x-www-form-urlencoded'].indexOf(bodyType) !== -1">
+                    <template slot="title">
+                      {{ $t('header_add_help') }}
+                    </template>
+                    <a-button class="editable-add-btn"
+                              @click="onClickBodyTableAddBtn"
+                              style="margin-bottom: 8px">{{ $t('add_row') }}
+                    </a-button>
+                  </a-tooltip>
+                </div>
+                <div class="field-box-right">
+                  <a-select v-model="bodyType"
+                            dropdown-class-name="eia-dropdown-class"
+                            style="width: 100%">
+                    <a-select-option value="none">none</a-select-option>
+                    <a-select-option value="multipart/form-data">multipart/form-data</a-select-option>
+                    <a-select-option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded
+                    </a-select-option>
+                    <a-select-option value="application/json">application/json</a-select-option>
+                    <a-select-option value="application/xml">application/xml</a-select-option>
+                    <a-select-option value="application/javascript">application/javascript</a-select-option>
+                    <a-select-option value="text/pain">text/pain</a-select-option>
+                    <a-select-option value="text/html">text/html</a-select-option>
+                  </a-select>
+                </div>
+
+              </div>
+              <div>
+                <div v-if="bodyType=== 'none'">
+                  <div style="min-height: 300px;">
+                    <a-empty :description="$t('no_request_body')"/>
+                  </div>
+                </div>
+                <div v-else-if="['multipart/form-data', 'application/x-www-form-urlencoded'].indexOf(bodyType) !== -1">
+                  <query-table :parameters="getApiParameters('form')" :request-data="requestData" ref="bodyTable">
+                    <template #addBtn>
+                      <div></div>
+                    </template>
+
+                  </query-table>
+                </div>
+                <div v-else style="margin-top: 10px">
+                  <a-textarea style="width: 100%; min-height: 300px;">
+
+                  </a-textarea>
+                </div>
+              </div>
+
             </a-tab-pane>
+            <!--    环境变量        -->
             <a-tab-pane key="Environment" tab="Environment">
               <a-select v-model="env" style="width: 30%">
                 <a-select-option value="guest">游客</a-select-option>
@@ -83,12 +144,19 @@
  * api 详情
  */
 import ApiTag from "@/components/tag/ApiTag";
-import RequestHeader from "@/components/table/RequestHeader";
+import RequestHeaderTable from "@/components/table/RequestHeaderTable";
+import QueryTable from "@/components/table/QueryTable";
+
+import {isJson2str} from "@/components/table/table_utils";
+
+const {getDefaultRow} = require("@/components/table/table_utils");
+import {isEmpty} from "@/utils/swagger";
+import {Empty} from 'ant-design-vue';
 
 export default {
   props: ['aid', 'swaggerDataset'],
   name: "ApiDetailView",
-  components: {ApiTag, RequestHeader},
+  components: {ApiTag, QueryTable, RequestHeaderTable},
   computed: {
     apiData: function () {
       let dataset = {
@@ -100,7 +168,8 @@ export default {
           title: 'unknown',
           description: '',
           base: ''
-        }
+        },
+        env: this.env
       }
       // 如果没有传入任何值，则取第一个
       if (!dataset.aid && Object.entries(this.swaggerDataset.uris)) {
@@ -112,12 +181,23 @@ export default {
       return dataset
     }
   },
-  created() {
-    this.requestURL = this.apiData.data.base
-  },
   data() {
     return {
-
+      /**
+       * 请求数据
+       * @type ApiTableEnvironment
+       */
+      requestData: {
+        query: {},
+        headers: {},
+        body: {},
+        env: {}
+      },
+      simpleImage: '',
+      /**
+       * 请求表单类型
+       */
+      bodyType: 'multipart/form-data',
       env: 'guest',
       requestURL: '',
       dataSource: [
@@ -166,21 +246,110 @@ export default {
         },
       ],
     }
-  }
+  },
+  beforeCreate() {
+    this.simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
+  },
+  created() {
+    this.requestURL = this.apiData.data.base
+    /**
+     * 如果全都没有任何形式的表单数据则使用 none
+     */
+    if (this.getApiParameters('body').concat(this.getApiParameters('form')).length === 0) {
+      this.bodyType = 'none'
+    }
+  },
+  watch: {
+    requestData: {
+      /**
+       * 当下方的数据表格发生变化的时候，需要更新URL
+       * @param value {ApiTableEnvironment}
+       */
+      handler(value) {
+        let queries = [];
+        for (const key in value.query) {
+          queries.push(key + "=" + value.query[key])
+        }
+        if (queries.length > 0) {
+          this.requestURL = this.apiData.data.base + "?" + queries.join("&");
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+  methods: {
+
+    /**
+     * 获取接口的请求参数列表
+     * @param key
+     * @param pushDefaultIfNot 如果数据为空的时候填充一个默认列表
+     * @return {[]}
+     */
+    getApiParameters(key, pushDefaultIfNot = true) {
+      let data = [];
+      /**
+       * @type SwaggerApiType
+       */
+      const swaggerApi = this.apiData.data;
+      if (!isEmpty(swaggerApi) && swaggerApi.parameters) {
+        for (const index in swaggerApi.parameters) {
+          const parameter = swaggerApi.parameters[index]
+          if (parameter.in === key) {
+            data.push(getDefaultRow({
+              params_name: parameter.name,
+              params_value: isJson2str(parameter.default),
+              params_require: parameter.required,
+              params_used: parameter.required,
+              params_description: parameter.description,
+            }))
+          }
+        }
+      }
+      if (data.length === 0 && pushDefaultIfNot) {
+        data = [getDefaultRow()]
+      }
+      return data
+    },
+    /**
+     * 点击body表单的新增一行按钮
+     */
+    onClickBodyTableAddBtn() {
+      this.$refs.bodyTable.onClickAddRow()
+    }
+  },
 }
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 .center-element {
   display: block;
   margin: 0 auto;
   text-align: center;
 }
 
+.field-box {
+  display: flex;
+  justify-content: flex-end;
+}
 
+.field-box-left {
+  width: 100%;
+  display: flex;
+}
+
+.field-box-right {
+  width: 35%;
+}
 
 .content {
   padding: 20px;
+}
+
+.eia-dropdown-class {
+  .ant-select-dropdown-menu:extend(.beauty-scroll) {
+    color: red;
+  }
 }
 
 </style>
